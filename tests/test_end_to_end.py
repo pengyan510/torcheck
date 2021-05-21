@@ -1,1 +1,30 @@
-def test_changing_parameter(correct_model):
+import pytest
+import torch
+import torch.nn.functional as F
+from torch.optim import Adam
+import torchtest
+
+
+def run_training(model, dataloader, optimizer):
+    for x_from_data, y_from_data in dataloader:
+        y_from_model = model(x_from_data)
+        loss = F.cross_entropy(y_from_model, y_from_data)
+        loss.backward()
+        optimizer.step()
+        optimizer.zero_grad()
+
+
+def test_changing_module_with_correct_model(correct_model, dataloader):
+    optimizer = Adam(correct_model.parameters(), lr=0.001)
+    torchtest.register(optimizer)
+    torchtest.add_changing_module(correct_model, module_name="NeuralNet")
+    run_training(correct_model, dataloader, optimizer)
+
+
+def test_changing_module_with_notchanging_model(notchanging_model, dataloader):
+    optimizer = Adam(notchanging_model.parameters(), lr=0.001)
+    torchtest.register(optimizer)
+    torchtest.add_changing_module(notchanging_model, module_name="NeuralNet")
+    with pytest.raises(RuntimeError, match="Module NeuralNet's 0.weight"):
+        run_training(notchanging_model, dataloader, optimizer)
+

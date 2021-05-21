@@ -74,5 +74,13 @@ class Registry:
                 min=min
             ) 
 
-    def add_changing_module(self, module):
-        self.add_module(module, changing=True) 
+    def add_changing_module(self, module, module_name=None):
+        self.add_module(
+            module,
+            module_name=module_name,
+            changing=True
+        )
+
+    def disable(self, *optimizers):
+        pass
+

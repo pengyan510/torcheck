@@ -33,6 +33,7 @@ class SpecItem:
             self.validate_min()
 
     def validate_changing(self):
+        # TODO: return error message here
         if self.changing:
             if torch.equal(self.tensor, self._old_copy):
                 raise RuntimeError(f"{self.name} should change.")

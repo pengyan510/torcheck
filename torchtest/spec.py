@@ -25,21 +25,22 @@ class SpecItem:
             return f"Module {self.module_name}'s {self.tensor_name}"
 
     def validate(self):
+        error_string = []
         if self.changing is not None:
-            self.validate_changing()
+            error_string.append(self.validate_changing())
         if self.max is not None:
-            self.validate_max()
+            error_string.append(self.validate_max())
         if self.min is not None:
-            self.validate_min()
+            error_string.append(self.validate_min())
+        return " ".join([_ for _ in error_string if _ is not None])
 
     def validate_changing(self):
-        # TODO: return error message here
         if self.changing:
             if torch.equal(self.tensor, self._old_copy):
-                raise RuntimeError(f"{self.name} should change.")
+                return f"{self.name} should change."
         else:
             if not torch.equal(self.tensor, self._old_copy):
-                raise RuntimeError(f"{self.name} should not change.")
+                return f"{self.name} should not change."
 
         self._old_copy = self.tensor.detach().clone()
 
@@ -75,6 +76,14 @@ class SpecList:
         )
 
     def validate(self):
+        error_strings = []
         for spec in self.specs:
-            spec.validate()
+            error_string = spec.validate()
+            if len(error_string) > 0:
+                error_strings.append(error_string)
+        if len(error_strings) > 0:
+            error_msg = "\n".join(error_strings)
+            raise RuntimeError(
+                f"The following errors are detected while training:\n{error_msg}"
+            )
 

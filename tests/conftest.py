@@ -7,10 +7,10 @@ from torch.utils.data import TensorDataset, DataLoader
 class NetBase(nn.Module):
     
     def __init__(self):
-        super(Net, self).__init__()
-        self.fc1 = nn.Linear(5, 3),
-        self.fc2 = nn.Linear(3, 2),
-        self.relu = nn.ReLu()
+        super(NetBase, self).__init__()
+        self.fc1 = nn.Linear(5, 5)
+        self.fc2 = nn.Linear(5, 2)
+        self.relu = nn.ReLU()
 
 
 class CorrectNet(NetBase):

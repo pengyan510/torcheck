@@ -25,6 +25,9 @@ def test_changing_module_with_notchanging_model(notchanging_model, dataloader):
     optimizer = Adam(notchanging_model.parameters(), lr=0.001)
     torchtest.register(optimizer)
     torchtest.add_changing_module(notchanging_model, module_name="NeuralNet")
-    with pytest.raises(RuntimeError, match="Module NeuralNet's 0.weight"):
+    with pytest.raises(
+        RuntimeError,
+        match=r"Module NeuralNet's fc1\.weight should change\.\n.*fc1.bias should change"
+    ):
         run_training(notchanging_model, dataloader, optimizer)
 

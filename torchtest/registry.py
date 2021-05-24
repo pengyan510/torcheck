@@ -1,4 +1,5 @@
 from dataclasses import dataclass, field
+from collections import defaultdict
 
 import torch.nn as nn
 
@@ -7,8 +8,9 @@ from .spec import SpecList
 
 @dataclass
 class Registry:
-    optimizer_to_spec: dict = field(default_factory=defaultdict(list), init=False)
-    tensor_to_optimizer: dict = field(default_factory=SpecList, init=False)
+    optimizer_to_spec: dict = field(default_factory=lambda: defaultdict(SpecList), init=False)
+    tensor_to_optimizer: dict = field(default_factory=dict, init=False)
+    active_optimizers: set = field(default_factory=set, init=False)
 
     def run_tests(self, optimizer):
         
@@ -16,7 +18,8 @@ class Registry:
             
             def inner(*args, **kwargs):
                 func(*args, **kwargs)
-                self.optimizer_to_spec[optimizer].validate()
+                if optimizer in self.active_optimizers:
+                    self.optimizer_to_spec[optimizer].validate()
 
             return inner
 
@@ -27,6 +30,7 @@ class Registry:
         for param_group in optimizer.param_groups:
             for param in param_group["params"]:
                 self.tensor_to_optimizer[param] = optimizer
+        self.active_optimizers.add(optimizer)
     
     def add_tensor(
         self,
@@ -81,6 +85,15 @@ class Registry:
             changing=True
         )
 
-    def disable(self, *optimizers):
-        pass
+    def disable(self, optimizers=None):
+        if optimizers is None:
+            optimizers = self.optimizer_to_spec.keys() 
+        for optimizer in optimizers:
+            self.active_optimizers.remove(optimizer)
+
+    def enable(self, optimizers=None):
+        if optimizers is None:
+            optimizers = self.optimizer_to_spec.keys()
+        for optimizer in optimizers:
+            self.active_optimizers.add(optimizer)
 

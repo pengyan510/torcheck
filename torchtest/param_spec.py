@@ -9,8 +9,6 @@ class SpecItem:
     tensor_name: str
     module_name: str = None
     changing: bool = None
-    max: float = None
-    min: float = None
     _old_copy: torch.Tensor = field(init=False, default=None)
 
     def __post_init__(self):
@@ -28,10 +26,6 @@ class SpecItem:
         error_string = []
         if self.changing is not None:
             error_string.append(self.validate_changing())
-        if self.max is not None:
-            error_string.append(self.validate_max())
-        if self.min is not None:
-            error_string.append(self.validate_min())
         return " ".join([_ for _ in error_string if _ is not None])
 
     def validate_changing(self):
@@ -44,15 +38,9 @@ class SpecItem:
 
         self._old_copy = self.tensor.detach().clone()
 
-    def validate_max(self):
-        pass
-
-    def validate_min(self):
-        pass
-
 
 @dataclass
-class SpecList:
+class ParamSpec:
     specs: list = field(default_factory=list)
 
     def add(
@@ -61,8 +49,6 @@ class SpecList:
         tensor_name,
         module_name=None,
         changing=None,
-        max=None,
-        min=None
     ):
         self.specs.append(
             SpecItem(
@@ -70,8 +56,6 @@ class SpecList:
                 tensor_name=tensor_name,
                 module_name=module_name,
                 changing=changing,
-                max=max,
-                min=min
             )
         )
 

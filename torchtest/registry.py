@@ -1,51 +1,77 @@
 from dataclasses import dataclass, field
 from collections import defaultdict
+from functools import singledispatchmethod
 
+import torch
 import torch.nn as nn
 
-from .spec import SpecList
+from .spec import ParamSpec
 
 
 @dataclass
 class Registry:
-    optimizer_to_spec: dict = field(default_factory=lambda: defaultdict(SpecList), init=False)
+    optimizer_to_spec: dict = field(
+        default_factory=lambda: defaultdict(ParamSpec),
+        init=False
+    )
     tensor_to_optimizer: dict = field(default_factory=dict, init=False)
     active_optimizers: set = field(default_factory=set, init=False)
+    module_to_spec: dict = field(default_factory=dict, init=False)
+    active_modules: set = field(default_factory=set, init=False)
 
-    def run_tests(self, optimizer):
+    @singledispatchmethod
+    def _run_check(self, component):
+        pass
+
+    @_run_check.register
+    def _(self, optimizer: torch.optim.Optimizer):
         
         def decorator(func):
             
             def inner(*args, **kwargs):
-                func(*args, **kwargs)
+                output = func(*args, **kwargs)
                 if optimizer in self.active_optimizers:
                     self.optimizer_to_spec[optimizer].validate()
+                return output
+
+            return inner
+
+        return decorator
+
+    @_run_check.register
+    def _(self, module: nn.Module):
+        
+        def decorator(func):
+            
+            def inner(*args, **kwargs):
+                output = func(*args, **kwargs)
+                if module in self.active_modules:
+                    self.module_to_spec[module].validate(output)
+                return output
 
             return inner
 
         return decorator
 
     def register(self, optimizer):
-        optimizer.step = self.run_tests(optimizer)(optimizer.step)
+        optimizer.step = self.run_check(optimizer)(optimizer.step)
         for param_group in optimizer.param_groups:
             for param in param_group["params"]:
                 self.tensor_to_optimizer[param] = optimizer
         self.active_optimizers.add(optimizer)
-    
+
     def add_tensor(
         self,
         tensor,
         tensor_name,
         module_name=None,
-        changing=None,
-        max=None,
-        min=None
+        changing=None
     ):
         optimizer = self.tensor_to_optimizer.get(tensor, None)
         if optimizer is None:
             raise RuntimeError(
                 "The tensor doesn't belong to any optimizer. "
-                "Please register the optimizer first."
+                "Please register its optimizer first."
             )
         self.optimizer_to_spec[optimizer].add(
             tensor=tensor,
@@ -56,44 +82,123 @@ class Registry:
             min=min
         )
 
-    def add_module(
+    def _add_param_check(
         self,
         module,
+        changing,
         module_name=None,
-        changing=None,
-        max=None,
-        min=None
     ):
         if not isinstance(module, nn.Module):
             raise RuntimeError(
                 f"Module should be nn.Module type, but is {type(module)}."
             )
+
         for name, param in module.named_parameters():
             self.add_tensor(
                 tensor=param,
                 tensor_name=name,
                 module_name=module_name,
-                changing=changing,
-                max=max,
-                min=min
+                changing=changing
             ) 
 
-    def add_changing_module(self, module, module_name=None):
-        self.add_module(
+    def _add_output_check(
+        self,
+        module,
+        output_range,
+        negate_range=False,
+        module_name=None
+    ):
+        if not isinstance(module, nn.Module):
+            raise RuntimeError(
+                f"Module should be nn.Module type, but is {type(module)}."
+            )
+
+        self.module_to_spec[module] = OutputSpec(
+            range=output_range,
+            negate=negate_range
+        )
+        self.active_modules.add(module)
+        module.forward = self._run_check(module)(module.forward)
+
+    def add_module(
+        self,
+        module,
+        module_name=None,
+        changing=None,
+        output_range=None,
+        negate_range=False
+    ):
+        if changing is not None:
+            self._add_param_check(
+               module=module,
+               module_name=module_name,
+               changing=changing
+            )
+        if output_range is not None:
+            self._add_output_check(
+                module=module,
+                module_name=module_name,
+                output_range=output_range,
+                negate_range=negate_range
+            )
+
+    def add_changing_check(self, module, module_name=None):
+        self._add_param_check(
             module,
             module_name=module_name,
             changing=True
         )
 
-    def disable(self, optimizers=None):
-        if optimizers is None:
-            optimizers = self.optimizer_to_spec.keys() 
+    def add_not_changing_check(self, module, module_name=None):
+        self._add_param_check(
+            module,
+            module_name=module_name,
+            changing=False
+        )
+
+    def add_output_range_check(
+        self,
+        module,
+        output_range,
+        negate_range=False,
+        module_name=None
+    ):
+        self._add_output_check(
+            module,
+            output_range=output_range,
+            negate_range=negate_range,
+            module_name=module_name
+        )
+
+    def disable_optimizers(self, *optimizers):
         for optimizer in optimizers:
             self.active_optimizers.remove(optimizer)
 
-    def enable(self, optimizers=None):
+    def disable_modules(self, *modules):
+        for module in modules:
+            self.active_modules.remove(module)
+
+    def disable(self, optimizers=None, modules=None):
         if optimizers is None:
-            optimizers = self.optimizer_to_spec.keys()
+            optimizers = self.optimizer_to_spec.keys() 
+        self.disable_optimizers(*optimizers)
+        if modules is None:
+            modules = self.module_to_spec.keys() 
+        self.disable_modules(*modules)
+
+    def enable_optimizers(self, *optimizers):
         for optimizer in optimizers:
             self.active_optimizers.add(optimizer)
+
+    def enable_modules(self, *modules):
+        for module in modules:
+            self.active_modules.add(module)
+
+    def enable(self, optimizers=None, modules=None):
+        if optimizers is None:
+            optimizers = self.optimizer_to_spec.keys()
+        self.enable_optimizers(*optimizers)
+        if modules is None:
+            modules = self.module_to_spec.keys()
+        self.enable_modules(*modules)
 

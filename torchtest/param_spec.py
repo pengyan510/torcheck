@@ -9,6 +9,8 @@ class SpecItem:
     tensor_name: str
     module_name: str = None
     changing: bool = None
+    check_nan: bool = False
+    check_inf: bool = False
     _old_copy: torch.Tensor = field(init=False, default=None)
 
     def __post_init__(self):
@@ -23,10 +25,15 @@ class SpecItem:
             return f"Module {self.module_name}'s {self.tensor_name}"
 
     def validate(self):
-        error_string = []
+        error_items = []
         if self.changing is not None:
-            error_string.append(self.validate_changing())
-        return " ".join([_ for _ in error_string if _ is not None])
+            error_items.append(self.validate_changing())
+        if self.check_nan:
+            error_items.append(self.validate_nan())
+        if self.check_inf:
+            error_items.append(self.validate_inf())
+
+        return message_utils.make_message(error_items, self.tensor)
 
     def validate_changing(self):
         if self.changing:
@@ -37,6 +44,14 @@ class SpecItem:
                 return f"{self.name} should not change."
 
         self._old_copy = self.tensor.detach().clone()
+
+    def validate_nan():
+        if torch.any(torch.isnan(self.tensor)).item():
+            return f"{self.name} contains NaN." 
+
+    def validate_inf():
+        if torch.any(torch.isinf(self.tensor)).item():
+            return f"{self.name} contains inf." 
 
 
 @dataclass
@@ -49,6 +64,8 @@ class ParamSpec:
         tensor_name,
         module_name=None,
         changing=None,
+        check_nan=False,
+        check_inf=False
     ):
         self.specs.append(
             SpecItem(
@@ -56,6 +73,8 @@ class ParamSpec:
                 tensor_name=tensor_name,
                 module_name=module_name,
                 changing=changing,
+                check_nan=check_nan,
+                check_inf=check_inf
             )
         )
 

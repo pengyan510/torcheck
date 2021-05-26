@@ -1,4 +1,5 @@
 from dataclasses import dataclass, field
+import warnings
 
 import torch
 
@@ -23,6 +24,27 @@ class SpecItem:
             return self.tensor_name
         else:
             return f"Module {self.module_name}'s {self.tensor_name}"
+
+    def update(
+        self,
+        tensor_name,
+        module_name=None,
+        changing=None,
+        check_nan=False,
+        check_inf=False
+    ):
+        if (tensor_name != self.tensor_name) or (module_name is not None and module_name != self.module_name):
+            old_name = self.name
+            self.tensor_name = tensor_name
+            if module_name is not None:
+                self.module_name = module_name
+            warnings.warn(f"{old_name} is renamed as {self.name}")
+        if changing is not None:
+            self.changing = changing
+        if check_nan:
+            self.check_nan = True
+        if check_inf:
+            self.check_inf = True
 
     def validate(self):
         error_items = []
@@ -56,7 +78,7 @@ class SpecItem:
 
 @dataclass
 class ParamSpec:
-    specs: list = field(default_factory=list)
+    specs: dict = field(default_factory=dict)
 
     def add(
         self,
@@ -67,8 +89,16 @@ class ParamSpec:
         check_nan=False,
         check_inf=False
     ):
-        self.specs.append(
-            SpecItem(
+        if tensor in self.specs:
+            self.specs[tensor].update(
+                tensor_name=tensor_name,
+                module_name=module_name,
+                changing=changing,
+                check_nan=check_nan,
+                check_inf=check_inf
+            )
+        else:
+            self.specs[tensor] = SpecItem(
                 tensor=tensor,
                 tensor_name=tensor_name,
                 module_name=module_name,
@@ -76,11 +106,10 @@ class ParamSpec:
                 check_nan=check_nan,
                 check_inf=check_inf
             )
-        )
 
     def validate(self):
         error_strings = []
-        for spec in self.specs:
+        for spec in self.specs.values():
             error_string = spec.validate()
             if len(error_string) > 0:
                 error_strings.append(error_string)

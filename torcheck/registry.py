@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from collections import defaultdict
 from functools import singledispatchmethod
 
 import torch
@@ -11,10 +10,7 @@ from .output_spec import OutputSpec
 
 @dataclass
 class Registry:
-    optimizer_to_spec: dict = field(
-        default_factory=lambda: defaultdict(ParamSpec),
-        init=False
-    )
+    optimizer_to_spec: dict = field(default_factory=dict, init=False)
     tensor_to_optimizer: dict = field(default_factory=dict, init=False)
     active_optimizers: set = field(default_factory=set, init=False)
     module_to_spec: dict = field(default_factory=dict, init=False)
@@ -55,6 +51,9 @@ class Registry:
         return decorator
 
     def register(self, optimizer):
+        if optimizer in self.optimizer_to_spec:
+            raise RuntimeError("The optimizer has already been registered.")
+        self.optimizer_to_spec[optimizer] = ParamSpec()
         optimizer.step = self.run_check(optimizer)(optimizer.step)
         for param_group in optimizer.param_groups:
             for param in param_group["params"]:
@@ -122,14 +121,23 @@ class Registry:
                 f"Module should be nn.Module type, but is {type(module)}."
             )
 
-        self.module_to_spec[module] = OutputSpec(
-            range=output_range,
-            negate=negate_range
-            check_nan=check_nan,
-            check_inf=check_inf
-        )
-        self.active_modules.add(module)
-        module.forward = self._run_check(module)(module.forward)
+        if module in self.module_to_spec:
+            self.module_to_spec[module].update(
+                module_name=module_name,
+                output_range=output_range,
+                negate_range=negate_range,
+                check_nan=check_nan,
+                check_inf=check_inf
+            )
+        else:
+            self.module_to_spec[module] = OutputSpec(
+                range=output_range,
+                negate=negate_range
+                check_nan=check_nan,
+                check_inf=check_inf
+            )
+            self.active_modules.add(module)
+            module.forward = self._run_check(module)(module.forward)
 
     def add_module(
         self,
@@ -159,52 +167,114 @@ class Registry:
                 check_inf=check_inf
             )
 
-    def add_changing_check(
+    def add_tensor_changing_check(
+        self,
+        tensor,
+        tensor_name,
+        module_name=None,
+    ):
+       self.add_tensor(
+           tensor=tensor,
+           tensor_name=tensor_name,
+           module_name=module_name,
+           changing=True
+       ) 
+
+    def add_tensor_not_changing_check(
+        self,
+        tensor,
+        tensor_name,
+        module_name=None,
+    ):
+       self.add_tensor(
+           tensor=tensor,
+           tensor_name=tensor_name,
+           module_name=module_name,
+           changing=False
+       ) 
+
+    def add_tensor_nan_check(
+        self,
+        tensor,
+        tensor_name,
+        module_name=None,
+    ):
+       self.add_tensor(
+           tensor=tensor,
+           tensor_name=tensor_name,
+           module_name=module_name,
+           check_nan=True
+       ) 
+
+    def add_tensor_inf_check(
+        self,
+        tensor,
+        tensor_name,
+        module_name=None,
+    ):
+       self.add_tensor(
+           tensor=tensor,
+           tensor_name=tensor_name,
+           module_name=module_name,
+           check_inf=True
+       ) 
+
+    def add_module_changing_check(
         self,
         module,
         module_name=None,
-        check_nan=False,
-        check_inf=False
     ):
         self._add_param_check(
             module,
             module_name=module_name,
             changing=True,
-            check_nan=check_nan,
-            check_inf=check_inf
         )
 
-    def add_not_changing_check(
+    def add_module_not_changing_check(
         self,
         module,
         module_name=None,
-        check_nan=False,
-        check_inf=False
     ):
         self._add_param_check(
             module,
             module_name=module_name,
             changing=False,
-            check_nan=check_nan,
-            check_inf=check_inf
         )
 
-    def add_output_range_check(
+    def add_module_output_range_check(
         self,
         module,
         output_range,
         negate_range=False,
         module_name=None,
-        check_nan=False,
-        check_inf=False
     ):
         self._add_output_check(
             module,
             output_range=output_range,
             negate_range=negate_range,
             module_name=module_name,
-            check_nan=check_nan,
-            check_inf=check_inf
+        )
+
+    def add_module_nan_check(
+        self,
+        module,
+        module_name=None,
+    ):
+        self.add_module(
+            module,
+            module_name=module_name,
+            check_nan=True
+        )
+
+    def add_module_inf_check(
+        self,
+        module,
+        module_name=None,
+    ):
+        self.add_module(
+            module,
+            module_name=module_name,
+            check_inf=True
         )
 
     def disable_optimizers(self, *optimizers):

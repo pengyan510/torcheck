@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from typing import Union
+import warnings
 
 import torch
 
@@ -28,6 +29,26 @@ class OutputSpec:
             return f"> {low}"
         else:
             return f"> {low} and < {high}"
+
+    def update(
+        self,
+        module_name=None,
+        range=None,
+        negate=False,
+        check_nan=False,
+        check_inf=False
+    ):
+        if module_name is not None and module_name != self.module_name:
+            old_name = self.name
+            self.module_name = module_name
+            warnings.warn(f"{old_name} is renamed as {self.name}.")
+        if range is not None:
+            self.range = range
+            self.negate = negate
+        if check_nan:
+            self.check_nan = True
+        if check_inf:
+            self.check_inf = True
 
     def validate(self, output):
         error_items = []

@@ -4,6 +4,8 @@ import warnings
 
 import torch
 
+from .utils import message_utils
+
 
 @dataclass
 class OutputSpec:

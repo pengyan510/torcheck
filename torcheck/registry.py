@@ -54,7 +54,7 @@ class Registry:
         if optimizer in self.optimizer_to_spec:
             raise RuntimeError("The optimizer has already been registered.")
         self.optimizer_to_spec[optimizer] = ParamSpec()
-        optimizer.step = self.run_check(optimizer)(optimizer.step)
+        optimizer.step = self._run_check(optimizer)(optimizer.step)
         for param_group in optimizer.param_groups:
             for param in param_group["params"]:
                 self.tensor_to_optimizer[param] = optimizer
@@ -110,7 +110,7 @@ class Registry:
     def _add_output_check(
         self,
         module,
-        module_name=None
+        module_name=None,
         output_range=None,
         negate_range=False,
         check_nan=False,
@@ -132,7 +132,7 @@ class Registry:
         else:
             self.module_to_spec[module] = OutputSpec(
                 range=output_range,
-                negate=negate_range
+                negate=negate_range,
                 check_nan=check_nan,
                 check_inf=check_inf
             )
@@ -162,7 +162,7 @@ class Registry:
                 module=module,
                 module_name=module_name,
                 output_range=output_range,
-                negate_range=negate_range
+                negate_range=negate_range,
                 check_nan=check_nan,
                 check_inf=check_inf
             )

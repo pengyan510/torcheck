@@ -180,7 +180,7 @@ class Registry:
            changing=True
        ) 
 
-    def add_tensor_not_changing_check(
+    def add_tensor_unchanging_check(
         self,
         tensor,
         tensor_name,
@@ -230,7 +230,7 @@ class Registry:
             changing=True,
         )
 
-    def add_module_not_changing_check(
+    def add_module_unchanging_check(
         self,
         module,
         module_name=None,

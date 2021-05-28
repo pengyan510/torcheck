@@ -9,13 +9,13 @@ registry = Registry()
 
 register = registry.register
 add_tensor = registry.add_tensor
-add_module = registry.add_module
 add_tensor_changing_check = registry.add_tensor_changing_check
-add_tensor_not_changing_check = registry.add_tensor_not_changing_check
+add_tensor_unchanging_check = registry.add_tensor_unchanging_check
 add_tensor_nan_check = registry.add_tensor_nan_check
 add_tensor_inf_check = registry.add_tensor_inf_check
+add_module = registry.add_module
 add_module_changing_check = registry.add_module_changing_check
-add_module_not_changing_check = registry.add_module_not_changing_check
+add_module_unchanging_check = registry.add_module_unchanging_check
 add_module_output_range_check = registry.add_module_output_range_check
 add_module_nan_check = registry.add_module_nan_check
 add_module_inf_check = registry.add_module_inf_check

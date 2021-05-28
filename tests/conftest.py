@@ -1,6 +1,8 @@
 import pytest
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
+from torch.optim import Adam
 from torch.utils.data import TensorDataset, DataLoader
 
 
@@ -13,7 +15,7 @@ class NetBase(nn.Module):
         self.relu = nn.ReLU()
 
 
-class CorrectNet(NetBase):
+class ChangingNet(NetBase):
 
     def forward(self, x):
         output = self.relu(self.fc1(x))
@@ -21,7 +23,7 @@ class CorrectNet(NetBase):
         return output
 
 
-class NotChangingNet(NetBase):
+class UnchangingNet(NetBase):
 
     def forward(self, x):
         output = self.relu(self.fc1(x))
@@ -29,20 +31,44 @@ class NotChangingNet(NetBase):
         return output
 
 
-@pytest.fixture
-def correct_model():
-    return CorrectNet()
+@pytest.fixture(scope="function")
+def changing_model():
+    return ChangingNet()
 
 
-@pytest.fixture
-def notchanging_model():
-    return NotChangingNet()
+@pytest.fixture(scope="function")
+def unchanging_model():
+    return UnchangingNet()
 
 
-@pytest.fixture
+@pytest.fixture(scope="function")
+def changing_model_optimizer(changing_model):
+    return Adam(changing_model.parameters(), lr=0.001)
+
+
+@pytest.fixture(scope="function")
+def unchanging_model_optimizer(unchanging_model):
+    return Adam(unchanging_model.parameters(), lr=0.001)
+
+
+@pytest.fixture(scope="function")
 def dataloader():
     x_data = torch.randn(8, 5)
     y_data = torch.randint(low=0, high=2, size=(8,))
     dataset = TensorDataset(x_data, y_data)
     return DataLoader(dataset, batch_size=4)
+
+
+@pytest.fixture(scope="function")
+def run_training():
+
+    def func(model, dataloader, optimizer):
+        for x_from_data, y_from_data in dataloader:
+            y_from_model = model(x_from_data)
+            loss = F.cross_entropy(y_from_model, y_from_data)
+            loss.backward()
+            optimizer.step()
+            optimizer.zero_grad()
+
+    return func
 

@@ -3,9 +3,6 @@ python:
 - 3.7
 - 3.8
 - 3.9
-env:
-  global:
-  - secure: "<encrypted PYPI_TOKEN=pypi-AgEIcHlwaS5vcmcCJDRkYjMyNzI5LWIyOWItNDE4Ni04NGFlLTZmMTk2MDRkZTQzOAACJXsicGVybWlzc2lvbnMiOiAidXNlciIsICJ2ZXJzaW9uIjogMX0AAAYgnx5L_1jyQQ105hDh7Awc5dwAP8cQVkgFfixWgNIs-sk>"
 before_install:
 - pip install poetry
 install:

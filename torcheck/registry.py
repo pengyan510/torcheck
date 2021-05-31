@@ -124,13 +124,14 @@ class Registry:
         if module in self.module_to_spec:
             self.module_to_spec[module].update(
                 module_name=module_name,
-                output_range=output_range,
-                negate_range=negate_range,
+                range=output_range,
+                negate=negate_range,
                 check_nan=check_nan,
                 check_inf=check_inf
             )
         else:
             self.module_to_spec[module] = OutputSpec(
+                module_name=module_name,
                 range=output_range,
                 negate=negate_range,
                 check_nan=check_nan,
@@ -287,10 +288,10 @@ class Registry:
 
     def disable(self, optimizers=None, modules=None):
         if optimizers is None:
-            optimizers = self.optimizer_to_spec.keys() 
+            optimizers = self.active_optimizers
         self.disable_optimizers(*optimizers)
         if modules is None:
-            modules = self.module_to_spec.keys() 
+            modules = self.active_modules
         self.disable_modules(*modules)
 
     def enable_optimizers(self, *optimizers):

@@ -57,6 +57,7 @@ class SpecItem:
         if self.check_inf:
             error_items.append(self.validate_inf())
 
+        error_items = [_ for _ in error_items if _ is not None]
         return message_utils.make_message(error_items, self.tensor)
 
     def validate_changing(self):
@@ -69,11 +70,11 @@ class SpecItem:
 
         self._old_copy = self.tensor.detach().clone()
 
-    def validate_nan():
+    def validate_nan(self):
         if torch.any(torch.isnan(self.tensor)).item():
             return f"{self.name} contains NaN." 
 
-    def validate_inf():
+    def validate_inf(self):
         if torch.any(torch.isinf(self.tensor)).item():
             return f"{self.name} contains inf." 
 

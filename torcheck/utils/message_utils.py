@@ -16,7 +16,7 @@ def is_verbose():
 
 
 def make_message(error_items, tensor):
-    message = " ".join([_ for _ in error_items if _ is not None])
+    message = " ".join(error_items)
     if is_verbose():
         message += f"\nThe tensor is:\n{tensor}"
     return message

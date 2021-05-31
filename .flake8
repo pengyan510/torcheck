@@ -4,3 +4,4 @@
 count = True
 max-line-length = 150
 statistics = True
+ignore = F401

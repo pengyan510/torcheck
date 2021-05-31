@@ -3,6 +3,9 @@ python:
 - 3.7
 - 3.8
 - 3.9
+env:
+  global:
+  - secure: "<encrypted PYPI_TOKEN=pypi-AgEIcHlwaS5vcmcCJDRkYjMyNzI5LWIyOWItNDE4Ni04NGFlLTZmMTk2MDRkZTQzOAACJXsicGVybWlzc2lvbnMiOiAidXNlciIsICJ2ZXJzaW9uIjogMX0AAAYgnx5L_1jyQQ105hDh7Awc5dwAP8cQVkgFfixWgNIs-sk>"
 before_install:
 - pip install poetry
 install:
@@ -12,7 +15,7 @@ script:
 - poetry run flake8 torcheck/ tests/
 - poetry run pytest --cov=torcheck/ tests/
 before_deploy:
-- poetry config pypi-token.pypi pypi-AgEIcHlwaS5vcmcCJDAwZjQyNTJkLTQ4MDMtNDU4OC04MGJjLThkMDQ2OGE3ZmM4OQACJXsicGVybWlzc2lvbnMiOiAidXNlciIsICJ2ZXJzaW9uIjogMX0AAAYgSry_Y_k5PprdXMUNLeg80JvAxy_VHWIwNu_IHryZPj4
+- poetry config pypi-token.pypi $PYPI_TOKEN
 - poetry build
 deploy:
   provider: script

@@ -1,0 +1,6 @@
+# For code-style check, currently the following exceptions are allowed:
+#   - E203: whitespace before ':'
+[flake8]
+count = True
+max-line-length = 150
+statistics = True

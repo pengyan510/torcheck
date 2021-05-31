@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "torcheck"
+version = "1.0.0"
+description = "A machine learning sanity check toolkit for PyTorch"
+authors = ["Peng Yan <pengyan510@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+homepage = "https://github.com/pengyan510/torcheck"
+repository = "https://github.com/pengyan510/torcheck"
+
+[tool.poetry.dependencies]
+python = "^3.7"
+torch = "^1.8"
+
+[tool.poetry.dev-dependencies]
+black = "^21.4b0"
+flake8 = "^3.9"
+pytest-cov = "^2.11"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

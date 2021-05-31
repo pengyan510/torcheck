@@ -9,7 +9,7 @@ homepage = "https://github.com/pengyan510/torcheck"
 repository = "https://github.com/pengyan510/torcheck"
 
 [tool.poetry.dependencies]
-python = "^3.7"
+python = "^3.8"
 torch = "^1.8"
 
 [tool.poetry.dev-dependencies]

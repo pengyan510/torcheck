@@ -1,9 +1,5 @@
 from .registry import Registry
-from .utils import (
-    verbose_on,
-    verbose_off,
-    is_verbose
-)
+from .utils import verbose_on, verbose_off, is_verbose
 
 registry = Registry()
 
@@ -26,4 +22,3 @@ disable = registry.disable
 enable_optimizers = registry.enable_optimizers
 enable_modules = registry.enable_modules
 enable = registry.enable
-

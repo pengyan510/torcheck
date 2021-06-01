@@ -1,7 +1,7 @@
 # For code-style check, currently the following exceptions are allowed:
-#   - E203: whitespace before ':'
+#   - F401: imported but unused
 [flake8]
 count = True
-max-line-length = 150
+max-line-length = 88
 statistics = True
 ignore = F401

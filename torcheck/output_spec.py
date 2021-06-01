@@ -38,7 +38,7 @@ class OutputSpec:
         range=None,
         negate=False,
         check_nan=False,
-        check_inf=False
+        check_inf=False,
     ):
         if module_name is not None and module_name != self.module_name:
             old_name = self.name
@@ -72,19 +72,20 @@ class OutputSpec:
             status = output >= low
         if high is not None:
             status = status & (output <= high)
-        
+
         if not self.negate:
             if not torch.all(status).item():
-                return f"{self.name} should all {self.condition}. Some are out of range"
+                return (
+                    f"{self.name} should all {self.condition}. " "Some are out of range"
+                )
         else:
             if torch.all(status).item():
                 return f"{self.name} shouldn't all {self.condition}"
 
     def validate_nan(self, output):
         if torch.any(torch.isnan(output)).item():
-            return f"{self.name} contains NaN." 
+            return f"{self.name} contains NaN."
 
     def validate_inf(self, output):
         if torch.any(torch.isinf(output)).item():
-            return f"{self.name} contains inf." 
-
+            return f"{self.name} contains inf."

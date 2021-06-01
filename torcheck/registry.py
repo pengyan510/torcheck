@@ -22,9 +22,7 @@ class Registry:
 
     @_run_check.register
     def _(self, optimizer: torch.optim.Optimizer):
-        
         def decorator(func):
-            
             def inner(*args, **kwargs):
                 output = func(*args, **kwargs)
                 if optimizer in self.active_optimizers:
@@ -37,9 +35,7 @@ class Registry:
 
     @_run_check.register
     def _(self, module: nn.Module):
-        
         def decorator(func):
-            
             def inner(*args, **kwargs):
                 output = func(*args, **kwargs)
                 if module in self.active_modules:
@@ -67,7 +63,7 @@ class Registry:
         module_name=None,
         changing=None,
         check_nan=False,
-        check_inf=False
+        check_inf=False,
     ):
         optimizer = self.tensor_to_optimizer.get(tensor, None)
         if optimizer is None:
@@ -81,16 +77,11 @@ class Registry:
             module_name=module_name,
             changing=changing,
             check_nan=check_nan,
-            check_inf=check_inf
+            check_inf=check_inf,
         )
 
     def _add_param_check(
-        self,
-        module,
-        module_name=None,
-        changing=None,
-        check_nan=False,
-        check_inf=False
+        self, module, module_name=None, changing=None, check_nan=False, check_inf=False
     ):
         if not isinstance(module, nn.Module):
             raise RuntimeError(
@@ -104,8 +95,8 @@ class Registry:
                 module_name=module_name,
                 changing=changing,
                 check_nan=check_nan,
-                check_inf=check_inf
-            ) 
+                check_inf=check_inf,
+            )
 
     def _add_output_check(
         self,
@@ -114,7 +105,7 @@ class Registry:
         output_range=None,
         negate_range=False,
         check_nan=False,
-        check_inf=False
+        check_inf=False,
     ):
         if not isinstance(module, nn.Module):
             raise RuntimeError(
@@ -127,7 +118,7 @@ class Registry:
                 range=output_range,
                 negate=negate_range,
                 check_nan=check_nan,
-                check_inf=check_inf
+                check_inf=check_inf,
             )
         else:
             self.module_to_spec[module] = OutputSpec(
@@ -135,7 +126,7 @@ class Registry:
                 range=output_range,
                 negate=negate_range,
                 check_nan=check_nan,
-                check_inf=check_inf
+                check_inf=check_inf,
             )
             self.active_modules.add(module)
             module.forward = self._run_check(module)(module.forward)
@@ -148,7 +139,7 @@ class Registry:
         output_range=None,
         negate_range=False,
         check_nan=False,
-        check_inf=False
+        check_inf=False,
     ):
         if (changing is not None) or check_nan or check_inf:
             self._add_param_check(
@@ -156,7 +147,7 @@ class Registry:
                 module_name=module_name,
                 changing=changing,
                 check_nan=check_nan,
-                check_inf=check_inf
+                check_inf=check_inf,
             )
         if (output_range is not None) or check_nan or check_inf:
             self._add_output_check(
@@ -165,7 +156,7 @@ class Registry:
                 output_range=output_range,
                 negate_range=negate_range,
                 check_nan=check_nan,
-                check_inf=check_inf
+                check_inf=check_inf,
             )
 
     def add_tensor_changing_check(
@@ -174,12 +165,12 @@ class Registry:
         tensor_name,
         module_name=None,
     ):
-       self.add_tensor(
-           tensor=tensor,
-           tensor_name=tensor_name,
-           module_name=module_name,
-           changing=True
-       ) 
+        self.add_tensor(
+            tensor=tensor,
+            tensor_name=tensor_name,
+            module_name=module_name,
+            changing=True,
+        )
 
     def add_tensor_unchanging_check(
         self,
@@ -187,12 +178,12 @@ class Registry:
         tensor_name,
         module_name=None,
     ):
-       self.add_tensor(
-           tensor=tensor,
-           tensor_name=tensor_name,
-           module_name=module_name,
-           changing=False
-       ) 
+        self.add_tensor(
+            tensor=tensor,
+            tensor_name=tensor_name,
+            module_name=module_name,
+            changing=False,
+        )
 
     def add_tensor_nan_check(
         self,
@@ -200,12 +191,12 @@ class Registry:
         tensor_name,
         module_name=None,
     ):
-       self.add_tensor(
-           tensor=tensor,
-           tensor_name=tensor_name,
-           module_name=module_name,
-           check_nan=True
-       ) 
+        self.add_tensor(
+            tensor=tensor,
+            tensor_name=tensor_name,
+            module_name=module_name,
+            check_nan=True,
+        )
 
     def add_tensor_inf_check(
         self,
@@ -213,12 +204,12 @@ class Registry:
         tensor_name,
         module_name=None,
     ):
-       self.add_tensor(
-           tensor=tensor,
-           tensor_name=tensor_name,
-           module_name=module_name,
-           check_inf=True
-       ) 
+        self.add_tensor(
+            tensor=tensor,
+            tensor_name=tensor_name,
+            module_name=module_name,
+            check_inf=True,
+        )
 
     def add_module_changing_check(
         self,
@@ -261,22 +252,14 @@ class Registry:
         module,
         module_name=None,
     ):
-        self.add_module(
-            module,
-            module_name=module_name,
-            check_nan=True
-        )
+        self.add_module(module, module_name=module_name, check_nan=True)
 
     def add_module_inf_check(
         self,
         module,
         module_name=None,
     ):
-        self.add_module(
-            module,
-            module_name=module_name,
-            check_inf=True
-        )
+        self.add_module(module, module_name=module_name, check_inf=True)
 
     def disable_optimizers(self, *optimizers):
         for optimizer in optimizers:
@@ -309,4 +292,3 @@ class Registry:
         if modules is None:
             modules = self.module_to_spec.keys()
         self.enable_modules(*modules)
-

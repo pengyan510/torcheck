@@ -33,9 +33,11 @@ class SpecItem:
         module_name=None,
         changing=None,
         check_nan=False,
-        check_inf=False
+        check_inf=False,
     ):
-        if (tensor_name != self.tensor_name) or (module_name is not None and module_name != self.module_name):
+        if (tensor_name != self.tensor_name) or (
+            module_name is not None and module_name != self.module_name
+        ):
             old_name = self.name
             self.tensor_name = tensor_name
             if module_name is not None:
@@ -72,11 +74,11 @@ class SpecItem:
 
     def validate_nan(self):
         if torch.any(torch.isnan(self.tensor)).item():
-            return f"{self.name} contains NaN." 
+            return f"{self.name} contains NaN."
 
     def validate_inf(self):
         if torch.any(torch.isinf(self.tensor)).item():
-            return f"{self.name} contains inf." 
+            return f"{self.name} contains inf."
 
 
 @dataclass
@@ -90,7 +92,7 @@ class ParamSpec:
         module_name=None,
         changing=None,
         check_nan=False,
-        check_inf=False
+        check_inf=False,
     ):
         if tensor in self.specs:
             self.specs[tensor].update(
@@ -98,7 +100,7 @@ class ParamSpec:
                 module_name=module_name,
                 changing=changing,
                 check_nan=check_nan,
-                check_inf=check_inf
+                check_inf=check_inf,
             )
         else:
             self.specs[tensor] = SpecItem(
@@ -107,7 +109,7 @@ class ParamSpec:
                 module_name=module_name,
                 changing=changing,
                 check_nan=check_nan,
-                check_inf=check_inf
+                check_inf=check_inf,
             )
 
     def validate(self):
@@ -121,4 +123,3 @@ class ParamSpec:
             raise RuntimeError(
                 f"The following errors are detected while training:\n{error_msg}"
             )
-

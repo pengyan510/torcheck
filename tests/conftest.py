@@ -7,7 +7,6 @@ from torch.utils.data import TensorDataset, DataLoader
 
 
 class NetBase(nn.Module):
-    
     def __init__(self):
         super(NetBase, self).__init__()
         self.fc1 = nn.Linear(5, 5)
@@ -16,7 +15,6 @@ class NetBase(nn.Module):
 
 
 class ChangingNet(NetBase):
-
     def forward(self, x):
         output = self.relu(self.fc1(x))
         output = self.fc2(output)
@@ -24,7 +22,6 @@ class ChangingNet(NetBase):
 
 
 class UnchangingNet(NetBase):
-
     def forward(self, x):
         output = self.relu(self.fc1(x))
         output = self.fc2(x)
@@ -32,7 +29,6 @@ class UnchangingNet(NetBase):
 
 
 class NaNNet(NetBase):
-
     def forward(self, x):
         output = self.relu(self.fc1(x))
         output = self.fc2(output)
@@ -40,25 +36,23 @@ class NaNNet(NetBase):
         output = torch.sqrt(output)
         return output
 
-        
-class InfNet(NetBase):
 
+class InfNet(NetBase):
     def forward(self, x):
         output = self.relu(self.fc1(x))
         output = self.fc2(output)
         output = output / 0
         return output
 
-        
-class BoundedNet(NetBase):
 
+class BoundedNet(NetBase):
     def forward(self, x):
         output = self.relu(self.fc1(x))
         output = self.fc2(output)
         output = F.softmax(output, dim=1)
         return output
 
-        
+
 @pytest.fixture(scope="function")
 def changing_model():
     return ChangingNet()
@@ -140,7 +134,6 @@ def dataloader():
 
 @pytest.fixture(scope="function")
 def run_training():
-
     def func(model, dataloader, optimizer):
         for x_from_data, y_from_data in dataloader:
             y_from_model = model(x_from_data)
@@ -156,4 +149,3 @@ correct_model = changing_model
 nonan_model = changing_model
 noinf_model = changing_model
 unbounded_model = changing_model
-

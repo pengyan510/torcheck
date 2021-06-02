@@ -1,18 +1,20 @@
 language: python
 python:
-- 3.8
-- 3.9
+  - 3.8
+  - 3.9
 before_install:
-- pip install poetry
+  - pip install poetry
 install:
-- poetry install
+  - poetry install
 script:
-- poetry run black --check torcheck/ tests/
-- poetry run flake8 torcheck/ tests/
-- poetry run pytest --cov=torcheck/ tests/
+  - poetry run black --check torcheck/ tests/
+  - poetry run flake8 torcheck/ tests/
+  - poetry run pytest --cov=torcheck/ tests/
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
 before_deploy:
-- poetry config pypi-token.pypi $PYPI_TOKEN
-- poetry build
+  - poetry config pypi-token.pypi $PYPI_TOKEN
+  - poetry build
 deploy:
   provider: script
   script: poetry publish

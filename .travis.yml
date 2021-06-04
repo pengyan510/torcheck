@@ -1,5 +1,8 @@
 dist: xenial
 os: linux
+env:
+  global:
+    - secure: "qsSXaKcSgMx8buByRF8yHZpnt0ONzkjbqk/QWezjCLZSagX7+59K0/swNmsmwV+d5uMYUpE9SVCMvFG8zZ4M3BqEZ/6BH8abwnO47+0Xd4mp8oH5MgtdeZK+qIgvn1AvkpxVM3+87mf506pLsk9ADhkHqg7uTS045bLvMy3F9fTvxEMIFOWiRJbu+CKcxOFxrlHFrSdxqY2/q+Gbzjb7eJVj4SDrSXBv+Nu514pv4mlOmoHNaqlhM4eFHTnC7cKjaianOHhJhLmMptWhMxwhRns/8SdtmicpAUNBW4w3ZObg9CFfyZhlBzab2T7YG8w/fU445rof9S3wZhfDwsGLFnfAJ0gz+PMUnsdAXjnJRjbi68F2b/CdvBg1YlWWyM30//yQ4/vIfdWUNrqT0YME3VEXUpkDCutvWe3OfW38VOAhFxVHx+jRZeDWuJ8Ax88TL+AmIPUoIAQ5KHcTpRa7U2SQHoqkd+VK1rX9ri8nrkrIpYiJSL1X33mgIb+Xkc6CjqEvKNYTxKE0XOMSx8wIb/3QkIsTZB0nU6jASpF1yN8TwmBW0Yfnu1kZNUqPO369/jMi5tXhwgdBDMO8Sh1KvCZCqKCgT5YC/+5fhyYtAiEJ6wpfOMJgoMkjEkjb3UlzI0xGi6ih0A6WzyTkjQriDUbFulVN8wnkoYRfsNrgPhk="
 language: python
 python:
   - 3.8

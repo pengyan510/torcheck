@@ -206,7 +206,7 @@ def test_tensor_inf_check_with_noinf_model(
     noinf_model_optimizer, noinf_model, dataloader, run_training
 ):
     torcheck.register(noinf_model_optimizer)
-    torcheck.add_tensor_nan_check(
+    torcheck.add_tensor_inf_check(
         noinf_model.fc1.weight, tensor_name="fc1.weight", module_name="NeuralNet"
     )
     torcheck.add_tensor_inf_check(
@@ -219,3 +219,26 @@ def test_tensor_inf_check_with_noinf_model(
         noinf_model.fc2.bias, tensor_name="fc2.bias", module_name="NeuralNet"
     )
     run_training(noinf_model, dataloader, noinf_model_optimizer)
+
+
+def test_tensor_multiple_check_with_correct_model(
+    correct_model_optimizer, correct_model, dataloader, run_training
+):
+    torcheck.register(correct_model_optimizer)
+    torcheck.add_tensor(
+        correct_model.fc1.weight,
+        tensor_name="fc1.weight",
+        module_name="NeuralNet",
+        changing=True,
+        check_nan=True,
+        check_inf=True,
+    )
+    torcheck.add_tensor(
+        correct_model.fc1.bias,
+        tensor_name="fc1.bias",
+        module_name="NeuralNet",
+        changing=True,
+        check_nan=True,
+        check_inf=True,
+    )
+    run_training(correct_model, dataloader, correct_model_optimizer)

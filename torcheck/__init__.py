@@ -1,5 +1,9 @@
+import importlib.metadata
+
 from .registry import Registry
 from .utils import verbose_on, verbose_off, is_verbose
+
+__version__ = importlib.metadata.version(__name__)
 
 registry = Registry()
 

@@ -2,8 +2,11 @@
 [![Build Status](https://travis-ci.com/pengyan510/torcheck.svg?branch=master)](https://travis-ci.com/pengyan510/torcheck)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 [![codecov](https://codecov.io/gh/pengyan510/torcheck/branch/master/graph/badge.svg?token=Q8ADT16N8A)](https://codecov.io/gh/pengyan510/torcheck)
+[![PyPI version](https://badge.fury.io/py/torcheck.svg)](https://badge.fury.io/py/torcheck)
 
 Torcheck is a machine learning sanity check toolkit for PyTorch.
+
+For a general introduction, please check this out: [Testing Your PyTorch Models with Torcheck] (TODO: add link here)
 
 ## About
 The creation of torcheck is inspired by Chase Roberts' [Medium post](https://thenerdstation.medium.com/mltest-automatically-test-neural-network-models-in-one-function-call-eb6f1fa5019d). The innovation and major benefit is that you no longer
@@ -176,12 +179,27 @@ torcheck.add_tensor(
 )
 ```
 
-### (Optional) Step 3: Turning off checks
-When your model has passed all the checks, you can easily turn them off to get rid of
-the overhead:
+### Step 3: Training and fixing
+After adding all the checks, run the training as usual and fix errors if any.
+
+By default torcheck's error messages don't include tensor value information. If you
+think it would be helpful, you can add the following line inside your torcheck code:
+```
+torcheck.verbose_on()
+```
+
+You can turn it off again by calling
+```
+torcheck.verbose_off()
+```
+
+### (Optional) Step 4: Turning off checks
+When your model has passed all the checks, you can easily turn them off by call
 ```
 torcheck.disable()
 ```
+This is useful when you want to run your model on a validation set, or you just want to
+remove the checking overhead from training.
 
 If you want to turn on the checks again, just call
 ```

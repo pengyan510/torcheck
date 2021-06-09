@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "torcheck"
-version = "1.0.0"
+version = "1.0.1"
 description = "A machine learning sanity check toolkit for PyTorch"
 authors = ["Peng Yan <pengyan510@gmail.com>"]
 license = "MIT"

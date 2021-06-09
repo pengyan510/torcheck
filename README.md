@@ -6,7 +6,7 @@
 
 Torcheck is a machine learning sanity check toolkit for PyTorch.
 
-For a general introduction, please check this out: [Testing Your PyTorch Models with Torcheck] (TODO: add link here)
+For a general introduction, please check this out: [Testing Your PyTorch Models with Torcheck](https://towardsdatascience.com/testing-your-pytorch-models-with-torcheck-cb689ecbc08c)
 
 ## About
 The creation of torcheck is inspired by Chase Roberts' [Medium post](https://thenerdstation.medium.com/mltest-automatically-test-neural-network-models-in-one-function-call-eb6f1fa5019d). The innovation and major benefit is that you no longer
@@ -194,7 +194,7 @@ torcheck.verbose_off()
 ```
 
 ### (Optional) Step 4: Turning off checks
-When your model has passed all the checks, you can easily turn them off by call
+When your model has passed all the checks, you can easily turn them off by calling
 ```
 torcheck.disable()
 ```

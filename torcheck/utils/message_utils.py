@@ -16,7 +16,10 @@ def is_verbose():
 
 
 def make_message(error_items, tensor):
+    if not len(error_items):
+        return ""
+
     message = " ".join(error_items)
     if is_verbose():
-        message += f"\nThe tensor is:\n{tensor}"
+        message += f"\nThe tensor is:\n{tensor}\n"
     return message

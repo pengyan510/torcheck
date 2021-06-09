@@ -26,3 +26,4 @@ deploy:
   skip_cleanup: true
   on:
     tags: true
+    python: 3.8

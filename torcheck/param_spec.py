@@ -64,10 +64,10 @@ class SpecItem:
 
     def validate_changing(self):
         if self.changing:
-            if torch.equal(self.tensor, self._old_copy):
+            if torch.equal(self.tensor, self._old_copy.to(device=self.tensor.device)):
                 return f"{self.name} should change."
         else:
-            if not torch.equal(self.tensor, self._old_copy):
+            if not torch.equal(self.tensor, self._old_copy.to(device=self.tensor.device)):
                 return f"{self.name} should not change."
 
         self._old_copy = self.tensor.detach().clone()
